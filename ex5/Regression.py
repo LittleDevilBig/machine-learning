@@ -147,6 +147,35 @@ def lam_error(xn,y,xcvn,ycv):
     print('lambda should be',lams[np.argmin(error_cv)])  # lambda should be 3
     print('loss=',reg_cost(learn_theta(xn,y,3),xcvn,ycv,0))
 
+def random_learning_curves(x, y, xcv, ycv, lam, length, epoch=50):
+    x1 = range(1, length + 1)
+    cost_cv = []
+    cost_train = []
+    for i in range(length):
+        cost_cv.append(0)
+        cost_train.append(0)
+    for k in range(epoch):
+        arra = np.arange(length)
+        np.random.shuffle(arra)
+        temp_x = x[arra[:length]]
+        temp_y = y[arra[:length]]
+        for i in range(1, temp_x.shape[0] + 1):
+            theta1 = learn_theta(temp_x[:i], temp_y[:i], lam)
+            cost_train[i - 1] += (reg_cost(theta1, temp_x[:i], temp_y[:i], 0))
+            cost_cv[i - 1] += (reg_cost(theta1, xcv, ycv, 0))
+    for i in range(length):
+        cost_cv[i] /= length
+        cost_train[i] /= length
+    plt.figure(figsize=(8, 8))
+    plt.plot(x1, cost_cv, c='r', label="cv")
+    plt.plot(x1, cost_train, c='g', label="train")
+    plt.title('learning curves')
+    plt.xlabel('number of m')
+    plt.ylabel('error')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+
 def main():
     rawdata=loadfile('ex5data1.mat')
     # training set
@@ -199,5 +228,6 @@ def main():
     xcvn = feature_normal(xcvp, means, std)
     learning_curves(xn, y, xcvn, ycv, 100)  # 过拟合
     lam_error(xn,y,xcvn,ycv)
+    random_learning_curves(xn, y, xcvn, ycv, 0, 10, epoch=50)
 
 main()
